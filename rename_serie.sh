@@ -1,68 +1,71 @@
 #!/bin/bash
 
-TR_TORRENT_NAME="prison break"
-TR_TORRENT_DIR="/home/brian/test"
-
 # extension des fichiers à garder
-extension=("avi" "mov" "mpg" "mkv" "mp4" "mp3")
+extensions=("avi" "mov" "mpg" "mkv" "mp4" "mp3")
+
+# change le séparateur
+IFS=$'\n'
 
 cd "$TR_TORRENT_DIR"
 # Si c'est un dossier, on extrait les bon fichier et on supprimer le dossier
 if [ -d "$TR_TORRENT_NAME" ]; then
-    for i in ${!extension[@]}; do
+    for extension in ${extensions[@]}; do
         # On récupere tous les nom de fichier séparé par un ";"
-        file+=`find "$TR_TORRENT_NAME/" -name "*.${extension[i]}" -printf "%p;"`
+        files+=`find "$TR_TORRENT_NAME/" -name "*.$extension"`
     done
-    i=1
-    while [ -f "`echo $file | cut -d \; -f $i`" ]; do
-        # On supprime seulement le dossier si il y a les bon fichiers dans le dossier
-        deleteDir=true
-        mv "`echo $file | cut -d \; -f $i`" .
-        i=$((i+1))
+
+    for file in $files; do
+        if [ -f "$file" ]; then
+            # On supprime seulement le dossier si il y a les bon fichiers dans le dossier
+            deleteDir=true
+            mv $file .
+        fi
     done
-    file=`basename "$file"`
+    # On récupère le nom du fichier sans le dossier
+    files=${files//$TR_TORRENT_NAME\//}
     if [ $deleteDir ]; then
         rm -r "$TR_TORRENT_NAME"
     fi
 else
-    file="$TR_TORRENT_NAME"
+    files="$TR_TORRENT_NAME"
 fi
-i=1
-while [ -f "`echo $file | cut -d \; -f $i`" ]; do
-    fileName=`echo $file | cut -d \; -f $i`
-    # retire tout ce qui ne sert à rien dans le fichier
-    newFile=$(echo $fileName | sed 's/\[.*\]//g')
-    newFile=$(echo $newFile | sed 's/\.www//g')
-    newFile=$(echo $newFile | sed 's/\.torrent9//g')
-    newFile=$(echo $newFile | sed 's/\.cpasbien//g')
-    newFile=$(echo $newFile | sed 's/\.ws//g')
-    newFile=$(echo $newFile | sed 's/\.biz//g')
-    newFile=$(echo $newFile | sed 's/\.cm//g')
-    newFile=$(echo $newFile | sed 's/\.pw//g')
-    newFile=$(echo $newFile | sed 's/\.io//g')
-    newFile=$(echo $newFile | sed 's/\.info//g')
-    mv "$fileName" "$newFile" 2> /dev/null
-    fileName=$newFile
+for fileName in $files; do
+    if [ -f "$fileName" ]; then
+        # retire tout ce qui ne sert à rien dans le nom de fichier
+        newFile=${fileName//\[*\]/}
+        newFile=${newFile//\.www/}
+        newFile=${newFile//\.torrent9/}
+        newFile=${newFile//\.cpasbien/}
+        newFile=${newFile//\.ws/}
+        newFile=${newFile//\.biz/}
+        newFile=${newFile//\.cm/}
+        newFile=${newFile//\.pw/}
+        newFile=${newFile//\.io/}
+        newFile=${newFile//\.info/}
+        newFile=${newFile//\ /\.}
+        mv "$fileName" "$newFile" 2> /dev/null
 
-    firstPart=${fileName%%.*}
-    filePart=${fileName#$firstPart.}
-    filePart=${filePart//./ }
-    dirName=
-    # récupere le nom de la série
-    for part in $filePart; do
-        if [[ "$part" =~ ^S[0-9]{1,2}E[0-9]{1,2}|(0?[1-9]|[1-9][0-9]){2}$ ]]; then
-            break
-        else
-            dirName+="$part "
+        # récupere le nom de la série
+        firstPart=${newFile%%.*}
+        partsName=${newFile#$firstPart.}
+        partsName=${partsName//./' '}
+        #On remet le séparateur pour les parties du nom de fichier
+        IFS=$' '
+        dirName=
+        for part in $partsName; do
+            if [[ "$part" =~ ^S[0-9]{1,2}E[0-9]{1,2}|(0?[1-9]|[1-9][0-9]){2}$ ]]; then
+                break
+            else
+                dirName+="$part "
+            fi
+        done
+        # retire le dernier espace et remet la première partie
+        dirName="$firstPart $dirName"
+        dirName=${dirName::-1}
+        if ! [ -d "$dirName" ]; then
+            mkdir "$dirName"
         fi
-    done
-    # retire le dernier espace et remet la première partie
-    dirName="$firstPart $dirName"
-    dirName=${dirName::-1}
-    if ! [ -d "$dirName" ]; then
-        mkdir "$dirName"
+        mv "$newFile" "$dirName"
     fi
-    mv "$fileName" "$dirName"
-    i=$((i+1))
 done
 
