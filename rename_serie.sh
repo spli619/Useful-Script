@@ -1,5 +1,8 @@
 #!/bin/bash
 
+TR_TORRENT_NAME="prison break"
+TR_TORRENT_DIR="/home/brian/test"
+
 # extension des fichiers à garder
 extension=("avi" "mov" "mpg" "mkv" "mp4" "mp3")
 
@@ -15,7 +18,7 @@ if [ -d "$TR_TORRENT_NAME" ]; then
         # On supprime seulement le dossier si il y a les bon fichiers dans le dossier
         deleteDir=true
         mv "`echo $file | cut -d \; -f $i`" .
-        i=$(($i+1))
+        i=$((i+1))
     done
     file=`basename "$file"`
     if [ $deleteDir ]; then
@@ -41,7 +44,9 @@ while [ -f "`echo $file | cut -d \; -f $i`" ]; do
     mv "$fileName" "$newFile" 2> /dev/null
     fileName=$newFile
 
-    filePart=`echo $fileName | tr "." " "`
+    firstPart=${fileName%%.*}
+    filePart=${fileName#$firstPart.}
+    filePart=${filePart//./ }
     dirName=
     # récupere le nom de la série
     for part in $filePart; do
@@ -51,12 +56,13 @@ while [ -f "`echo $file | cut -d \; -f $i`" ]; do
             dirName+="$part "
         fi
     done
-    # retire le dernier espace
+    # retire le dernier espace et remet la première partie
+    dirName="$firstPart $dirName"
     dirName=${dirName::-1}
     if ! [ -d "$dirName" ]; then
         mkdir "$dirName"
     fi
     mv "$fileName" "$dirName"
-    i=$(($i+1))
+    i=$((i+1))
 done
 
