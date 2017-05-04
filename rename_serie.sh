@@ -42,7 +42,7 @@ for fileName in $files; do
         newFile=${newFile//\.pw/}
         newFile=${newFile//\.io/}
         newFile=${newFile//\.info/}
-        newFile=${newFile//\ /\.}
+        newFile=${newFile//\ /}
         mv "$fileName" "$newFile" 2> /dev/null
 
         # récupere le nom de la série
