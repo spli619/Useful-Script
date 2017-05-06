@@ -22,7 +22,7 @@ if [ -d "$TR_TORRENT_NAME" ]; then
         fi
     done
     # On récupère le nom du fichier sans le dossier
-    files=${files//$TR_TORRENT_NAME\//}
+    files=${files//"$TR_TORRENT_NAME/"/}
     if [ $deleteDir ]; then
         rm -r "$TR_TORRENT_NAME"
     fi
