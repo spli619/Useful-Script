@@ -56,7 +56,7 @@ for fileName in $files; do
             if [[ "$part" =~ ^S[0-9]{1,2}E[0-9]{1,2}|(0?[1-9]|[1-9][0-9]){2}$ ]]; then
                 break
             else
-                dirName+="$part "
+                dirName+="${part^} "
             fi
         done
         # retire le dernier espace et remet la première partie
