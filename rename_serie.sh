@@ -28,16 +28,8 @@ for fileName in ${files[@]}; do
     if [ -f "$fileName" ]; then
         # retire tout ce qui ne sert à rien dans le nom de fichier
         newFile=`echo $fileName | sed 's/\.\w*-\w*//ig'`
+        newFile=`echo $newFile | sed 's/\(\.www\)\.\w*\.\w\{2,4\}//ig'`
         newFile=${newFile//\[*\]}
-        newFile=${newFile//\.www/}
-        newFile=${newFile//\.torrent9}
-        newFile=${newFile//\.cpasbien}
-        newFile=${newFile//\.ws}
-        newFile=${newFile//\.biz}
-        newFile=${newFile//\.cm}
-        newFile=${newFile//\.pw}
-        newFile=${newFile//\.io}
-        newFile=${newFile//\.info}
         newFile=${newFile//\ }
         newFile=${newFile//\\t}
         newFile=${newFile//\\n}
@@ -50,7 +42,7 @@ for fileName in ${files[@]}; do
         IFS=$' '
         dirName=
         for part in $partsName; do
-            if [[ "$part" =~ ^S[0-9][1-9]E[0-9][1-9]|(0?[1-9]|[1-9][0-9]){2}$ ]]; then
+            if [[ "$part" =~ ^S[0-9]{1,2}E[0-9]{1,2}|(0?[1-9]|[1-9][0-9]){2}$ ]]; then
                 break
             else
                 dirName+="${part^} "
@@ -61,7 +53,7 @@ for fileName in ${files[@]}; do
         dirName=${dirName::-1}
 
         # récupère le numéro de la saison
-        season=`echo $newFile | sed 's/^.*S\([0-9][1-9]\)E[0-9][1-9].*$/\1/i'`
+        season=`echo $newFile | sed 's/^.*S\([0-9]\{1,2\}\)E[0-9]\{1,2\}.*$/\1/i'`
         season=`echo $season | awk '{firstCar=substr($1,0,1)} {print "Saison",firstCar==0?substr($1,2):$1}'`
 
         newFile="$dirName/$season/$newFile"
