@@ -54,7 +54,7 @@ for fileName in ${files[@]}; do
 
         # récupère le numéro de la saison
         season=`echo $newFile | sed 's/^.*S\([0-9]\{1,2\}\)E[0-9]\{1,2\}.*$/\1/i'`
-        season=`echo $season | awk '{firstCar=substr($1,0,1)} {print "Saison",firstCar==0?substr($1,2):$1}'`
+        season=`echo $season | awk '{firstCar=substr($1,0,1)} /^[0-9]{1,2}$/{print "Saison",firstCar==0?substr($1,2):$1}'`
 
         newFile="$dirName/$season/$newFile"
         if ! [ -d "$dirName" ]; then
