@@ -38,11 +38,12 @@ for fileName in ${files[@]}; do
         firstPart=${newFile%%.*}
         partsName=${newFile#$firstPart.}
         partsName=${partsName//./' '}
+        firstPart=${firstPart^}
         #On remet le séparateur pour les parties du nom du dossier
         IFS=$' '
         dirName=
         for part in $partsName; do
-            if [[ "$part" =~ ^S[0-9]{1,2}E[0-9]{1,2}|(0?[1-9]|[1-9][0-9]){2}$ ]]; then
+            if [[ "$part" =~ ^[Ss][0-9]{1,2}[Ee][0-9]{1,2}|(0?[1-9]|[1-9][0-9]){2}$ ]]; then
                 break
             else
                 dirName+="${part^} "
